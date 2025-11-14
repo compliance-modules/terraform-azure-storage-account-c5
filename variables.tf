@@ -45,3 +45,61 @@ variable "account_tier" {
     error_message = "Invalid value for account tier. Valid options are `Standard` and `Premium`. For `BlockBlobStorage` and `FileStorage` accounts only `Premium` is valid. Changing this forces a new resource to be created."
   }
 }
+
+variable "account_kind" {
+  type        = string
+  default     = "StorageV2"
+  description = "(Required) The Kind of storage account. Valid options are `Storage`, `StorageV2`, `BlobStorage`, `FileStorage`, `BlockBlobStorage`, and `PremiumBlockBlobStorage`."
+  nullable    = false
+
+  validation {
+    condition     = contains(["Storage", "StorageV2", "BlobStorage", "FileStorage", "BlockBlobStorage", "PremiumBlockBlobStorage"], var.account_kind)
+    error_message = "Invalid value for account kind. Valid options are `Storage`, `StorageV2`, `BlobStorage`, `FileStorage`, `BlockBlobStorage`, and `PremiumBlockBlobStorage`."
+  }
+}
+
+variable "subnet_ids" {
+  type        = list(string)
+  description = "List of Subnet IDs to be allowed access to the Storage Account."
+  nullable    = false
+  default     = []
+}
+
+variable "ip_rules" {
+  type        = list(string)
+  description = "List of IP addresses or CIDR ranges to be allowed access to the Storage Account."
+  nullable    = false
+  default     = []
+}
+
+variable "tags" {
+  type        = map(string)
+  description = "A mapping of tags to assign to the resource."
+  nullable    = false
+  default     = {}
+}
+
+variable "cmk" {
+  type = object({
+    key_vault_id = string
+    key_name     = string
+    key_version  = string
+  })
+  description = "Customer-managed key (CMK) details for at-rest encryption."
+  nullable    = true
+  default     = null
+}
+
+variable "lifecycle_prefix_match" {
+  type        = set(string)
+  description = "Prefixes to match for the lifecycle management rule."
+  nullable    = false
+  default     = [""]
+}
+
+variable "lifecycle_delete_after_days" {
+  type        = number
+  description = "Number of days after which blobs are deleted in the lifecycle management rule."
+  nullable    = false
+  default     = 365
+}
