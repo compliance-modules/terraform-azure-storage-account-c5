@@ -47,7 +47,7 @@ resource "azurerm_storage_account" "this" {
 }
 
 # -----------------------------------
-# Customer-managed key
+# Customer-managed key (CRY)
 # -----------------------------------
 resource "azurerm_storage_account_customer_managed_key" "this" {
   count = var.cmk != null ? 1 : 0
@@ -84,5 +84,36 @@ resource "azurerm_storage_management_policy" "this" {
         delete_after_days_since_creation = var.lifecycle_delete_after_days
       }
     }
+  }
+}
+
+# ---------------------------------------------------
+# Azure Monitor Diagnostics (OPS-10..OPS-15 logging)
+# ---------------------------------------------------
+resource "azurerm_monitor_diagnostic_setting" "this" {
+  name               = "${azurerm_storage_account.this.name}-c5"
+  target_resource_id = azurerm_storage_account.this.id
+
+  log_analytics_workspace_id = var.log_analytics_workspace_id
+
+  # ---- Data-plane logs (OPS-12 / OPS-13) ----
+  # Read operations on blobs/files/queues/tables
+  enabled_log {
+    category = "StorageRead"
+  }
+
+  # Write operations
+  enabled_log {
+    category = "StorageWrite"
+  }
+
+  # Delete operations
+  enabled_log {
+    category = "StorageDelete"
+  }
+
+  # ---- Metrics for monitoring / anomaly detection (OPS-17) ----
+  enabled_metric {
+    category = "AllMetrics"
   }
 }

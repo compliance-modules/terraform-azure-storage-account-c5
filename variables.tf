@@ -103,3 +103,9 @@ variable "lifecycle_delete_after_days" {
   nullable    = false
   default     = 365
 }
+
+variable "log_analytics_workspace_id" {
+  type        = string
+  description = "The Log Analytics Workspace ID where Storage Account logs will be sent."
+  nullable    = false
+}
